@@ -1,0 +1,20 @@
+sudo: required
+services:
+  - docker
+
+before_install:
+  - docker build -t steinkamp245/react-test -f ./client/Dockerfile.dev ./client
+
+script:
+  - docker run steinkamp245/react-test npm test -- --coverage
+
+after_success:
+  - docker build -t steinkamp245/multi-client ./client
+  - docker build -t steinkamp245/multi-nginx ./nginx
+  - docker build -t steinkamp245/multi-server ./server
+  - docker build -t steinkamp245/multi-worker ./worker
+  - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+  - docker push steinkamp245/multi-client
+  - docker push steinkamp245/multi-nginx
+  - docker push steinkamp245/multi-server
+  - docker push steinkamp245/multi-worker
