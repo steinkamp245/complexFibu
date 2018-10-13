@@ -13,8 +13,26 @@ after_success:
   - docker build -t steinkamp245/multi-nginx ./nginx
   - docker build -t steinkamp245/multi-server ./server
   - docker build -t steinkamp245/multi-worker ./worker
+
+  # Login to the docker CLI
   - echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+  # Take those images and push them to docker hub
   - docker push steinkamp245/multi-client
   - docker push steinkamp245/multi-nginx
   - docker push steinkamp245/multi-server
   - docker push steinkamp245/multi-worker
+
+deploy:
+  provider: elasticbeanstalk
+  region: us-east-2
+  app: multi-docker
+  env: MultiDocker-env
+  bucket_name: elasticbeanstalk-us-east-2-705210230604
+  bucket_path: complexFibu
+  on:
+    branch: master
+  access_key_id: $AWS_ACCESS_KEY
+  secret_access_key:
+    secure: $AWS_SECRET_KEY
+
